@@ -1,29 +1,24 @@
 # btms-connectivity-tester
 
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_btms-connectivity-tester&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_btms-connectivity-tester)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_btms-connectivity-tester&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_btms-connectivity-tester)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_btms-connectivity-tester&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_btms-connectivity-tester)
+Connectivity tester application, to test simple network connectivity from the CDP platform to various resource.
 
-Core delivery platform Node.js Frontend Template.
+In order to use this application for curl/fetch tests (within CDP), you will need to update squid proxy egress for this service as well.
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
-- [Server-side Caching](#server-side-caching)
 - [Redis](#redis)
+- [Server-side Caching](#server-side-caching)
 - [Local Development](#local-development)
   - [Setup](#setup)
   - [Development](#development)
+  - [Local JSON API](#local-json-api)
   - [Production](#production)
   - [Npm scripts](#npm-scripts)
-  - [Update dependencies](#update-dependencies)
   - [Formatting](#formatting)
     - [Windows prettier issue](#windows-prettier-issue)
 - [Docker](#docker)
-  - [Development image](#development-image)
-  - [Production image](#production-image)
-  - [Docker Compose](#docker-compose)
-  - [Dependabot](#dependabot)
-  - [SonarCloud](#sonarcloud)
+  - [Development Image](#development-image)
+  - [Production Image](#production-image)
 - [Licence](#licence)
   - [About the licence](#about-the-licence)
 
@@ -41,24 +36,21 @@ cd btms-connectivity-tester
 nvm use
 ```
 
-## Server-side Caching
-
-We use Catbox for server-side caching. By default the service will use CatboxRedis when deployed and CatboxMemory for
-local development.
-You can override the default behaviour by setting the `SESSION_CACHE_ENGINE` environment variable to either `redis` or
-`memory`.
-
-Please note: CatboxMemory (`memory`) is _not_ suitable for production use! The cache will not be shared between each
-instance of the service and it will not persist between restarts.
-
 ## Redis
 
-Redis is an in-memory key-value store. Every instance of a service has access to the same Redis key-value store similar
-to how services might have a database (or MongoDB). All frontend services are given access to a namespaced prefixed that
-matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
+Redis is an in-memory key-value store. Every instance of a service has access to the same Redis key-value store similar to how services might have a database (or MongoDB). All frontend services are given access to a namespaced prefixed that matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
 
-If your service does not require a session cache to be shared between instances or if you don't require Redis, you can
-disable setting `SESSION_CACHE_ENGINE=false` or changing the default value in `~/src/config/index.js`.
+Redis has been **disabled** in newly created services by setting the `redis.enabled` property to `false`. The CDP platform team have to inject Redis configuration into your service first. Your service will death-loop if Redis is enabled without speaking to us first.
+
+> [!IMPORTANT]
+> If enabling Redis, contact the CDP Platform Team first. Deploying your service with Redis enabled, before we've injected Redis configuration will cause your service to death-loop.
+
+## Server-side Caching
+
+We use Catbox for server-side caching. Specifically CatboxRedis, the Redis adapter for CatBox. It is important that in memory caching isn't used for server-side caching as this will cause issues when there is more than one instance of your service running. Server-side caching has been **disabled** in newly created services by setting the `redis.enabled` property to `false`. Please see [Redis](#redis) for more information.
+
+> [!IMPORTANT]
+> If you want to enable server-side caching using Catbox, contact the CDP Platform Team first. Deploying your service with Redis enabled, before we've injected Redis configuration will cause your service to death-loop.
 
 ## Local Development
 
@@ -78,6 +70,14 @@ To run the application in `development` mode run:
 npm run dev
 ```
 
+### Local JSON API
+
+Whilst the APIs are being developed this app uses a local JSON mock API. To start this locally run:
+
+```bash
+npm run mockApi
+```
+
 ### Production
 
 To mimic the application running in `production` mode locally run:
@@ -93,17 +93,6 @@ To view them in your command line run:
 
 ```bash
 npm run
-```
-
-### Update dependencies
-
-To update dependencies use [npm-check-updates](https://github.com/raineorshine/npm-check-updates):
-
-> The following script is a good start. Check out all the options on
-> the [npm-check-updates](https://github.com/raineorshine/npm-check-updates)
-
-```bash
-ncu --interactive --format group
 ```
 
 ### Formatting
@@ -159,15 +148,6 @@ A local environment with:
 ```bash
 docker compose up --build -d
 ```
-
-### Dependabot
-
-We have added an example dependabot configuration file to the repository. You can enable it by renaming
-the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github/dependabot.yml`
-
-### SonarCloud
-
-Instructions for setting up SonarCloud can be found in [sonar-project.properties](./sonar-project.properties).
 
 ## Licence
 

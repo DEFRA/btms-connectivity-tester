@@ -1,7 +1,10 @@
-@use "govuk-frontend";
+$govuk-assets-path: "/public/assets/";
+$govuk-global-styles: true;
 
-@use "variables";
-@use "helpers";
-@use "core";
-@use "components";
-@use "partials";
+@import "govuk-frontend/dist/govuk/all";
+
+@import "variables/all";
+@import "helpers/all";
+@import "core/all";
+@import "components/all";
+@import "partials/all";

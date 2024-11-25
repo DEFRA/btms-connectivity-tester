@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'path'
 import CopyPlugin from 'copy-webpack-plugin'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 import WebpackAssetsManifest from 'webpack-assets-manifest'
 
@@ -15,11 +16,6 @@ const govukFrontendPath = path.dirname(
   require.resolve('govuk-frontend/package.json')
 )
 
-const ruleTypeAssetResource = 'asset/resource'
-
-/**
- * @type {Configuration}
- */
 export default {
   context: path.resolve(dirname, 'src/client'),
   entry: {
@@ -30,7 +26,7 @@ export default {
   experiments: {
     outputModule: true
   },
-  mode: NODE_ENV === 'production' ? 'production' : 'development',
+  mode: NODE_ENV,
   devtool: NODE_ENV === 'production' ? 'source-map' : 'inline-source-map',
   watchOptions: {
     aggregateTimeout: 200,
@@ -60,7 +56,7 @@ export default {
   module: {
     rules: [
       {
-        test: /\.(js|mjs|scss)$/,
+        test: /\.(js|mjs)$/,
         loader: 'source-map-loader',
         enforce: 'pre'
       },
@@ -94,51 +90,48 @@ export default {
       },
       {
         test: /\.scss$/,
-        type: ruleTypeAssetResource,
-        generator: {
-          binary: false,
-          filename:
-            NODE_ENV === 'production'
-              ? 'stylesheets/[name].[contenthash:7].min.css'
-              : 'stylesheets/[name].css'
-        },
         use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              // Allow sass-loader to process CSS @import first
+              // before we use css-loader to extract `url()` etc
+              importLoaders: 2
+            }
+          },
           'postcss-loader',
           {
             loader: 'sass-loader',
             options: {
               sassOptions: {
-                loadPaths: [
-                  path.join(dirname, 'src/client/stylesheets'),
+                includePaths: [
                   path.join(dirname, 'src/server/common/components'),
-                  path.join(dirname, 'src/server/common/templates/partials')
+                  path.join(dirname, 'node_modules')
                 ],
-                quietDeps: true,
-                sourceMapIncludeSources: true,
-                style: 'expanded'
-              },
-              warnRuleAsWarning: true
+                quietDeps: true
+              }
             }
           }
         ]
       },
       {
         test: /\.(png|svg|jpe?g|gif)$/,
-        type: ruleTypeAssetResource,
+        type: 'asset/resource',
         generator: {
           filename: 'assets/images/[name][ext]'
         }
       },
       {
         test: /\.(ico)$/,
-        type: ruleTypeAssetResource,
+        type: 'asset/resource',
         generator: {
           filename: 'assets/images/[name][ext]'
         }
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
-        type: ruleTypeAssetResource,
+        type: 'asset/resource',
         generator: {
           filename: 'assets/fonts/[name][ext]'
         }
@@ -176,6 +169,12 @@ export default {
   plugins: [
     new CleanWebpackPlugin(),
     new WebpackAssetsManifest(),
+    new MiniCssExtractPlugin({
+      filename:
+        NODE_ENV === 'production'
+          ? 'stylesheets/[name].[contenthash:7].min.css'
+          : 'stylesheets/[name].css'
+    }),
     new CopyPlugin({
       patterns: [
         {
@@ -185,14 +184,5 @@ export default {
       ]
     })
   ],
-  stats: {
-    errorDetails: true,
-    loggingDebug: ['sass-loader'],
-    preset: 'minimal'
-  },
   target: 'browserslist:javascripts'
 }
-
-/**
- * @import { Configuration } from 'webpack'
- */

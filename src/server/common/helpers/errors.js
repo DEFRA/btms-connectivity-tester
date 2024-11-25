@@ -1,31 +1,22 @@
-import { statusCodes } from '~/src/server/common/constants/status-codes.js'
-
-/**
- * @param {number} statusCode
- */
 function statusCodeMessage(statusCode) {
   switch (true) {
-    case statusCode === statusCodes.notFound:
+    case statusCode === 404:
       return 'Page not found'
-    case statusCode === statusCodes.forbidden:
+    case statusCode === 403:
       return 'Forbidden'
-    case statusCode === statusCodes.unauthorized:
+    case statusCode === 401:
       return 'Unauthorized'
-    case statusCode === statusCodes.badRequest:
+    case statusCode === 400:
       return 'Bad Request'
     default:
       return 'Something went wrong'
   }
 }
 
-/**
- * @param { Request } request
- * @param { ResponseToolkit } h
- */
-export function catchAll(request, h) {
+function catchAll(request, h) {
   const { response } = request
 
-  if (!('isBoom' in response)) {
+  if (!response.isBoom) {
     return h.continue
   }
 
@@ -43,6 +34,4 @@ export function catchAll(request, h) {
     .code(statusCode)
 }
 
-/**
- * @import { Request, ResponseToolkit } from '@hapi/hapi'
- */
+export { catchAll }

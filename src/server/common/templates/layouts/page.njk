@@ -1,15 +1,13 @@
 {% extends "govuk/template.njk" %}
 
-{# Import GOVUK components globally #}
-{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
-
-{# Import custom components globally #}
+{% from "page-body/macro.njk" import appPageBody %}
+{% from "breadcrumbs/macro.njk" import appBreadcrumbs %}
 {% from "heading/macro.njk" import appHeading %}
 
 {% set mainClasses = "app-main-wrapper" %}
 
 {% block head %}
-  <link href="{{ getAssetPath('stylesheets/application.scss') }}" rel="stylesheet">
+  <link href="{{ getAssetPath('application.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block header %}
@@ -21,7 +19,7 @@
     serviceUrl: serviceUrl,
     useTudorCrown: true
   }) }}
-  {% include "partials/navigation/navigation.njk" %}
+  {% include "partials/navigation.njk" %}
 {% endblock %}
 
 {% block pageTitle %}
@@ -30,7 +28,7 @@
 
 {% block beforeContent %}
   {% if breadcrumbs.length > 1 %}
-    {{ govukBreadcrumbs({
+    {{ appBreadcrumbs({
       items: breadcrumbs
     }) }}
   {% endif %}
