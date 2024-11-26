@@ -1,1 +1,3 @@
-export { default as assign } from 'lodash/assign.js'
+import assign from 'lodash/assign.js'
+
+export { assign }

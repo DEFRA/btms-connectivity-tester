@@ -1,21 +1,16 @@
-/**
- * @param {Partial<Request> | null} request
- */
-export function buildNavigation(request) {
+function buildNavigation(request) {
   return [
     {
       text: 'Home',
       url: '/',
-      isActive: request?.path === '/'
+      isActive: request.path === '/'
     },
     {
       text: 'About',
       url: '/about',
-      isActive: request?.path === '/about'
+      isActive: request.path === '/about'
     }
   ]
 }
 
-/**
- * @import { Request } from '@hapi/hapi'
- */
+export { buildNavigation }
