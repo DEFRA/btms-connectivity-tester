@@ -27,15 +27,3 @@ jobs:
         uses: DEFRA/cdp-build-action/build@5f3ba75f66a3ef96855322c137727ff996cc2995
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-#      - name: Create Test Coverage Reports
-#        run: |
-#          npm ci
-#          npm run build
-#          npm test
-
-#      - name: SonarCloud Scan
-#        uses: SonarSource/sonarcloud-github-action@master
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
